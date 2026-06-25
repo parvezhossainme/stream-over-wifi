@@ -1,14 +1,11 @@
 #!/data/data/com.termux/files/usr/bin/bash
-# Stream on WiFi — Termux startup script
-# Run this script to start the server
-# You can also set this up with Termux:Boot for auto-start on phone boot
+set -euo pipefail
 
 DIR="$(cd "$(dirname "$0")" && pwd)"
-cd "$DIR" || exit 1
+cd "$DIR"
 
 PORT="${PORT:-3000}"
 
-# Show a banner
 clear
 echo "╔══════════════════════════════════════════╗"
 echo "║        Stream on WiFi — Termux          ║"
@@ -17,50 +14,47 @@ echo ""
 
 # Check node
 if ! command -v node &>/dev/null; then
-  echo "❌ Node.js not found. Installing..."
+  echo "→ Installing Node.js..."
   pkg upgrade -y
   pkg install nodejs -y
 fi
-
 echo "✓ Node.js $(node -v)"
 
 # Install deps if missing
 if [ ! -d "node_modules" ]; then
   echo "→ Installing dependencies..."
-  npm install --loglevel=error
+  npm install
   echo "✓ Dependencies installed"
 fi
 
 # Build if needed
-if [ ! -d ".next" ]; then
-  echo "→ Building project (first time)..."
+if [ ! -f ".next/BUILD_ID" ]; then
+  echo "→ Building project (this may take a minute)..."
   npm run build
+  if [ ! -f ".next/BUILD_ID" ]; then
+    echo "❌ Build failed. Run 'npm run build' manually to see errors."
+    exit 1
+  fi
   echo "✓ Build complete"
 fi
 
-# Acquire Termux wakelock (keeps CPU awake)
+# Acquire Termux wakelock
 if command -v termux-wake-lock &>/dev/null; then
   termux-wake-lock
-  WAKE_LOCKED=1
-  echo "✓ Wakelock acquired"
+  echo "✓ Wakelock acquired (phone won't sleep)"
 fi
 
 # Show connection info
-HOST_IP=$(ifconfig 2>/dev/null | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1' | head -1)
 echo ""
-echo "  Starting server on port $PORT..."
+echo "  Server starting on port $PORT..."
 echo "  ─────────────────────────────────────"
-echo "  Open in browser: http://${HOST_IP:-192.168.x.x}:$PORT"
+echo "  Open in browser: http://<this-phone-ip>:$PORT"
 echo ""
 
-# Start server and handle cleanup on exit
 cleanup() {
   echo ""
   echo "  Shutting down..."
-  if [ "$WAKE_LOCKED" = "1" ]; then
-    termux-wake-unlock 2>/dev/null
-    echo "  Wakelock released"
-  fi
+  command -v termux-wake-unlock &>/dev/null && termux-wake-unlock 2>/dev/null || true
   exit 0
 }
 trap cleanup SIGINT SIGTERM
