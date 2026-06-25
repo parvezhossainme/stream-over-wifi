@@ -72,9 +72,11 @@ function getMediaUrl(entry: FileEntry) {
 function getPlayerPath(entry: FileEntry) {
   if (entry.type === "folder") return "/browse" + entry.path
   const ext = entry.extension?.toLowerCase()
-  if (ext && VIDEO_EXTENSIONS.has(ext)) return "/player" + entry.path
-  if (ext && IMAGE_EXTENSIONS.has(ext)) return "/player" + entry.path
-  if (ext && AUDIO_EXTENSIONS.has(ext)) return "/player" + entry.path
+  const encoded = encodeURIComponent(entry.path)
+  if (ext && VIDEO_EXTENSIONS.has(ext)) return `/player/video?path=${encoded}`
+  if (ext && IMAGE_EXTENSIONS.has(ext)) return `/viewer/image?path=${encoded}`
+  if (ext && AUDIO_EXTENSIONS.has(ext)) return `/player/audio?path=${encoded}`
+  if (ext && DOCUMENT_EXTENSIONS.has(ext)) return `/viewer/document?path=${encoded}`
   return buildDownloadUrl(entry.path)
 }
 

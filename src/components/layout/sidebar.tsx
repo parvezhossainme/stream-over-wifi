@@ -24,7 +24,6 @@ import { Separator } from "@/components/ui/separator"
 const quickLinks: { label: string; href: string; icon: LucideIcon }[] = [
   { label: "Home", href: "/", icon: Home },
   { label: "Browse", href: "/browse", icon: Compass },
-  { label: "Favorites", href: "/favorites", icon: Heart },
 ]
 
 const categoryIconMap: Record<string, LucideIcon> = {
