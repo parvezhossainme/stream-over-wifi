@@ -31,10 +31,10 @@ function getFileType(filename: string, ext: string): FileEntry['type'] {
 }
 
 function classifyMedia(ext: string): string {
-  if (VIDEO_EXTENSIONS.has(ext)) return 'video'
-  if (IMAGE_EXTENSIONS.has(ext)) return 'image'
+  if (VIDEO_EXTENSIONS.has(ext)) return 'videos'
+  if (IMAGE_EXTENSIONS.has(ext)) return 'images'
   if (AUDIO_EXTENSIONS.has(ext)) return 'audio'
-  if (DOCUMENT_EXTENSIONS.has(ext)) return 'document'
+  if (DOCUMENT_EXTENSIONS.has(ext)) return 'documents'
   return 'other'
 }
 

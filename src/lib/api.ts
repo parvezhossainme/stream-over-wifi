@@ -82,13 +82,13 @@ export function fetchNetwork(): Promise<{
 export async function uploadFiles(
   path: string,
   files: FileList | File[]
-): Promise<FileEntry[]> {
+): Promise<{ files: FileEntry[]; count: number }> {
   const formData = new FormData()
   for (const file of files) {
     formData.append("files", file)
   }
   const qs = buildQuery({ path })
-  return request<FileEntry[]>(`/api/upload${qs}`, {
+  return request<{ files: FileEntry[]; count: number }>(`/api/upload${qs}`, {
     method: "POST",
     body: formData,
   })

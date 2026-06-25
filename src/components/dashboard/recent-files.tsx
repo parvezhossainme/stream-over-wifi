@@ -36,12 +36,13 @@ export function RecentFiles() {
       ) : files && files.length > 0 ? (
         <div className="flex gap-3 overflow-x-auto pb-2">
           {files.map((file, i) => {
+            const encoded = encodeURIComponent(file.path)
             const href = file.mime?.startsWith("video/")
-              ? `/play/${encodeURIComponent(file.path)}`
+              ? `/player/video?path=${encoded}`
               : file.mime?.startsWith("image/")
-                ? `/view/${encodeURIComponent(file.path)}`
+                ? `/viewer/image?path=${encoded}`
                 : file.mime?.startsWith("audio/")
-                  ? `/play/${encodeURIComponent(file.path)}`
+                  ? `/player/audio?path=${encoded}`
                   : "#"
             return (
               <motion.div

@@ -27,12 +27,13 @@ import type { FileEntry, SortField, SortOrder, FileFilter, ViewMode } from "@/ty
 
 interface FileExplorerProps {
   initialPath: string
+  initialFilter?: FileFilter
 }
 
-export function FileExplorer({ initialPath }: FileExplorerProps) {
+export function FileExplorer({ initialPath, initialFilter }: FileExplorerProps) {
   const [sort, setSort] = useState<SortField>("name")
   const [order, setOrder] = useState<SortOrder>("asc")
-  const [filter, setFilter] = useState<FileFilter>("all")
+  const [filter, setFilter] = useState<FileFilter>(initialFilter || "all")
   const [viewMode] = useLocalStorage<ViewMode>("file-view-mode", "grid")
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
   const [createFolderOpen, setCreateFolderOpen] = useState(false)

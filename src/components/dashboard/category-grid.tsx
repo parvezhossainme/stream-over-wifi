@@ -59,7 +59,7 @@ function CategoryCard({
 
   return (
     <Link
-      href={`/browse?path=${encodeURIComponent(path)}&filter=${category.id}`}
+      href={`/browse${path}?filter=${category.id}`}
       className={cn(
         "group relative flex flex-col items-center gap-2 rounded-xl p-4",
         "bg-card/50 ring-1 ring-white/10 backdrop-blur-sm",
