@@ -1,5 +1,6 @@
 const { createServer } = require('http')
 const { URL } = require('url')
+const { networkInterfaces } = require('os')
 const next = require('next')
 
 const DEFAULT_PORT = parseInt(process.env.PORT || '3000', 10)
