@@ -7,8 +7,9 @@ interface BrowsePageProps {
 }
 
 export default async function BrowsePage({ params, searchParams }: BrowsePageProps) {
-  const { path } = await params
+  const { path: raw } = await params
   const { filter } = await searchParams
+  const path = raw?.map(s => decodeURIComponent(s))
   const currentPath = path && path.length > 0 ? "/" + path.join("/") : "/"
 
   return (

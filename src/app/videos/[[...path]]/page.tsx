@@ -130,8 +130,9 @@ export default function VideosPage() {
   const params = useParams()
   const pathSegments = params.path as string[] | undefined
 
-  const hasPath = pathSegments && pathSegments.length > 0
-  const folderPath = hasPath ? "/" + pathSegments.join("/") : "/"
+  const decoded = pathSegments?.map(s => decodeURIComponent(s))
+  const hasPath = decoded && decoded.length > 0
+  const folderPath = hasPath ? "/" + decoded.join("/") : "/"
 
   return (
     <div className="mx-auto w-full max-w-7xl px-4 py-6">
