@@ -6,6 +6,8 @@ import type {
   SortField,
   SortOrder,
   FileFilter,
+  VideoFolder,
+  VideoFolderContent,
 } from "@/types"
 
 class ApiError extends Error {
@@ -135,4 +137,13 @@ export function buildThumbUrl(path: string): string {
 
 export function buildDownloadUrl(path: string): string {
   return `/api/download/${encodeURIComponent(path)}`
+}
+
+export function fetchVideoFolders(): Promise<VideoFolder[]> {
+  return request<VideoFolder[]>("/api/video-folders")
+}
+
+export function fetchVideoFolder(path: string): Promise<VideoFolderContent> {
+  const qs = buildQuery({ path })
+  return request<VideoFolderContent>(`/api/video-folder${qs}`)
 }

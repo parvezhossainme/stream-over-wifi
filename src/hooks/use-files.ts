@@ -7,6 +7,8 @@ import type {
   SortField,
   SortOrder,
   FileFilter,
+  VideoFolder,
+  VideoFolderContent,
 } from "@/types"
 import {
   fetchFiles,
@@ -18,6 +20,8 @@ import {
   deleteFile,
   renameFile,
   createFolder,
+  fetchVideoFolders,
+  fetchVideoFolder,
 } from "@/lib/api"
 
 export function useFiles(
@@ -129,6 +133,22 @@ export function useRenameFile() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["files"] })
     },
+  })
+}
+
+export function useVideoFolders() {
+  return useQuery<VideoFolder[]>({
+    queryKey: ["video-folders"],
+    queryFn: fetchVideoFolders,
+    staleTime: 30_000,
+  })
+}
+
+export function useVideoFolder(path: string) {
+  return useQuery<VideoFolderContent>({
+    queryKey: ["video-folder", path],
+    queryFn: () => fetchVideoFolder(path),
+    enabled: path.length > 0,
   })
 }
 

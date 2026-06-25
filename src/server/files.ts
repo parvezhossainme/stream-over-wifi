@@ -1,7 +1,11 @@
 import fs from 'fs/promises'
 import path from 'path'
 import { DEFAULT_STORAGE_PATH, VIDEO_EXTENSIONS, IMAGE_EXTENSIONS, AUDIO_EXTENSIONS, DOCUMENT_EXTENSIONS, SUBTITLE_EXTENSIONS } from '@/lib/constants'
-import type { FileEntry, FolderContent, StorageInfo, FileFilter, SortField, SortOrder } from '@/types'
+import type { FileEntry, FolderContent, StorageInfo, FileFilter, SortField, SortOrder, VideoFolder, VideoFolderContent } from '@/types'
+
+const SYSTEM_DIRS = new Set(['Android', 'data', 'obb'])
+let videoFoldersCache: { data: VideoFolder[]; timestamp: number } | null = null
+const VIDEO_FOLDERS_CACHE_TTL = 60_000
 
 function getExtension(filename: string): string {
   const i = filename.lastIndexOf('.')
@@ -246,6 +250,75 @@ export async function getRecentFiles(count = 20): Promise<FileEntry[]> {
 
   all.sort((a, b) => new Date(b.modified).getTime() - new Date(a.modified).getTime())
   return all.slice(0, count)
+}
+
+export async function scanVideoFolders(maxDepth = 6): Promise<VideoFolder[]> {
+  const now = Date.now()
+  if (videoFoldersCache && now - videoFoldersCache.timestamp < VIDEO_FOLDERS_CACHE_TTL) {
+    return videoFoldersCache.data
+  }
+
+  const results: VideoFolder[] = []
+
+  async function walk(dir: string, relative: string, depth: number) {
+    if (depth > maxDepth) return
+    let entries
+    try {
+      entries = await fs.readdir(dir, { withFileTypes: true })
+    } catch {
+      return
+    }
+
+    let videoCount = 0
+    let thumbnailPath: string | undefined
+    const subdirs: { full: string; relative: string }[] = []
+
+    for (const entry of entries) {
+      if (entry.name.startsWith('.') || (depth === 0 && SYSTEM_DIRS.has(entry.name))) continue
+      const full = path.join(dir, entry.name)
+      const rel = relative ? path.join(relative, entry.name) : entry.name
+
+      if (entry.isDirectory()) {
+        subdirs.push({ full, relative: rel })
+      } else if (entry.isFile()) {
+        const ext = getExtension(entry.name)
+        if (VIDEO_EXTENSIONS.has(ext)) {
+          videoCount++
+          if (!thumbnailPath) thumbnailPath = '/' + rel.replace(/\\/g, '/')
+        }
+      }
+    }
+
+    if (videoCount > 0) {
+      results.push({
+        name: path.basename(relative || '/'),
+        path: '/' + relative.replace(/\\/g, '/'),
+        videoCount,
+        thumbnailPath,
+        totalSize: 0,
+      })
+    }
+
+    for (const sub of subdirs) {
+      await walk(sub.full, sub.relative, depth + 1)
+    }
+  }
+
+  await walk(DEFAULT_STORAGE_PATH, '', 0)
+  results.sort((a, b) => b.videoCount - a.videoCount)
+
+  videoFoldersCache = { data: results, timestamp: now }
+  return results
+}
+
+export async function getVideoFolderContents(folderPath: string): Promise<VideoFolderContent> {
+  const result = await listFolder(folderPath, 'videos', 'name', 'asc')
+  return {
+    path: result.path,
+    name: path.basename(result.path),
+    videos: result.files,
+    count: result.files.length,
+  }
 }
 
 export async function fileExists(filePath: string): Promise<boolean> {

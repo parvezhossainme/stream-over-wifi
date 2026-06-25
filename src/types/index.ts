@@ -64,3 +64,18 @@ export interface ServerConfig {
   storagePath: string
   networkInterfaces: string[]
 }
+
+export interface VideoFolder {
+  name: string
+  path: string
+  videoCount: number
+  thumbnailPath?: string
+  totalSize: number
+}
+
+export interface VideoFolderContent {
+  path: string
+  name: string
+  videos: FileEntry[]
+  count: number
+}

@@ -23,6 +23,7 @@ import { Separator } from "@/components/ui/separator"
 
 const quickLinks: { label: string; href: string; icon: LucideIcon }[] = [
   { label: "Home", href: "/", icon: Home },
+  { label: "Videos", href: "/videos", icon: Film },
   { label: "Browse", href: "/browse", icon: Compass },
 ]
 

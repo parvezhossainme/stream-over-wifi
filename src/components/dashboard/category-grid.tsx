@@ -57,9 +57,13 @@ function CategoryCard({
   const path = category.paths[0]
   const count = data?.files.length ?? 0
 
+  const href = category.id === "videos"
+    ? "/videos"
+    : `/browse${path}?filter=${category.id}`
+
   return (
     <Link
-      href={`/browse${path}?filter=${category.id}`}
+      href={href}
       className={cn(
         "group relative flex flex-col items-center gap-2 rounded-xl p-4",
         "bg-card/50 ring-1 ring-white/10 backdrop-blur-sm",
