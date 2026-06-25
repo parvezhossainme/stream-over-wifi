@@ -1,6 +1,5 @@
 const { createServer } = require('http')
-const { parse } = require('url')
-const { networkInterfaces } = require('os')
+const { URL } = require('url')
 const next = require('next')
 
 const DEFAULT_PORT = parseInt(process.env.PORT || '3000', 10)
@@ -26,8 +25,11 @@ async function main() {
   await app.prepare()
 
   const server = createServer((req, res) => {
-    const parsedUrl = parse(req.url, true)
-    handle(req, res, parsedUrl)
+    const parsedUrl = new URL(req.url, `http://${req.headers.host || 'localhost'}`)
+    handle(req, res, {
+      pathname: parsedUrl.pathname,
+      query: Object.fromEntries(parsedUrl.searchParams),
+    })
   })
 
   server.listen(DEFAULT_PORT, DEFAULT_HOST, () => {
